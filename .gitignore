@@ -1,3 +1,10 @@
+CSV, TSV FILES
+*.csv
+*.tsv
+
+PICKLED FILES
+*.pkl
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

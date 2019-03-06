@@ -20,7 +20,7 @@ Build X pipelines:
 * Pipeline 4: XGboost with all the features (*)
 * Pipeline 5: Neural Network with all the features (*)
 * Pipeline 6: SVM (*)
-* Feature selection: use results from Pipeline 1, Pipeline 3, and Pipeline 4, and (maybe) PCA to find the 'best' features
+* Feature selection: use results from Pipeline 1, Pipeline 3, and Pipeline 4, covariance matrix and PCA to find the 'best' features
 * Pipeline 7: Logistic regression with the best features
 * Pipeline 8: Naive bayes with the best features
 * Pipeline 9: Random forest with the best features
