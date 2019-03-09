@@ -3,6 +3,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
+from load_data import load_data
 import pickle
 
 class ColumnSelector(BaseEstimator, TransformerMixin):
@@ -72,22 +73,18 @@ def create_assembled_pipeline(model_dictionary, topmodel, topmodel_parameters={}
     return assembled_pipeline   
 
 
-
-def study_performance_of_all_available_pickled_models(X_dropout, y_dropout, folder="./pickled_models"):
+def study_performance_of_all_available_pickled_models(folder="./pickled_models"):
     all_models = load_all_available_pickled_models(folder=folder)
-    names = []
-    train_scores = []
-    test_scores = []
-    dropout_scores = []
+    X, X_ensemble, X_dropout, y, y_ensemble, y_dropout, train_csv, test_csv = load_data()    
+    performance = []
     for model_name in all_models:
-        tr, ts,  dr = _get_performance_metrics_base_pipeline(all_models[model_name], X_dropout, y_dropout)
-        names.append(model_name)
-        train_scores.append(tr)
-        test_scores.append(ts)
-        dropout_scores.append(dr)
-    return pd.DataFrame({'mean_train_score_cv': train_scores,
-                         'mean_test_score_cv' : test_scores, 
-                         'dropout_score': dropout_scores}, index=names)
+        p = list(_get_performance_metrics(all_models[model_name], X, X_ensemble, X_dropout, y, y_ensemble, y_dropout))
+        performance.append(p)
+    
+    index_names = [n for n in all_models]
+    column_names = ['train_score_cv', 'test_score_cv','train_score','ensemble_score','dropout_score']
+    df = pd.DataFrame(performance, columns = column_names, index = index_names)
+    return df
 
 
 def load_all_available_pickled_models(folder="./pickled_models"):
@@ -99,12 +96,14 @@ def load_all_available_pickled_models(folder="./pickled_models"):
     return models
 
 
-def _get_performance_metrics_base_pipeline(model, X_dropout, y_dropout):
+def _get_performance_metrics(model, X, X_ensemble, X_dropout, y, y_ensemble, y_dropout):
     index_best_model = model.best_index_
     cv_train_score = model.cv_results_['mean_train_score'][index_best_model]
     cv_test_score = model.cv_results_['mean_test_score'][index_best_model]
+    train_score = model.score(X, y)
+    ensemble_score = model.score(X_ensemble, y_ensemble)
     dropout_score = model.score(X_dropout, y_dropout)
-    return cv_train_score, cv_test_score,  dropout_score
+    return cv_train_score, cv_test_score, train_score, ensemble_score, dropout_score
 
 
 def pickle_pipeline(model, filename, folder='pickled_models/'):
