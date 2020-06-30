@@ -7,7 +7,11 @@ def load_data(random_state=42):
     
     Features = train_csv.drop(columns = 'target')
     target = train_csv.target
-    X, X_dropout, y, y_dropout = train_test_split(Features, target, test_size=0.50, random_state=random_state)
+    X, X_dropout, y, y_dropout = train_test_split(Features, target, test_size=0.60, random_state=random_state)
     X_ensemble, X_dropout, y_ensemble, y_dropout = train_test_split(X_dropout, y_dropout, 
                                                                     test_size=0.50, random_state=random_state)
-    return X, X_ensemble, X_dropout, y, y_ensemble, y_dropout, train_csv, test_csv
+    
+    X_train = pd.concat([X,X_ensemble])
+    y_train = pd.concat([y,y_ensemble])
+    
+    return X, X_ensemble, X_dropout, y, y_ensemble, y_dropout, X_train, y_train, train_csv, test_csv
